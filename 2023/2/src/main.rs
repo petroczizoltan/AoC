@@ -32,7 +32,8 @@ fn main() {
     let game_re = Regex::new(r"Game ([0-9]+):").unwrap();
     let cube_re = Regex::new(r"([0-9]+) (red|blue|green)").unwrap();
 
-    let mut sum: i32 = 0;
+    let mut sum1: i32 = 0;
+    let mut sum2: i32 = 0;
 
     for line in read_to_string(file_path).unwrap().lines() {
         let game_id = game_re.captures(line).unwrap().get(1).to_i32();
@@ -40,23 +41,34 @@ fn main() {
 
         let mut is_valid_cube: bool = true;
 
+        let mut min_red = 0;
+        let mut min_green = 0;
+        let mut min_blue = 0;
+
         for cube_match in &cube_matches {
             let cube = cube_parser(&cube_match);
 
-            is_valid_cube = cube.is_valid();
+            match cube {
+                Cube { color: CubeColor::Red, count } if count > min_red => min_red = count,
+                Cube { color: CubeColor::Green, count } if count > min_green => min_green = count,
+                Cube { color: CubeColor::Blue, count } if count > min_blue => min_blue = count,
+                _ => {}
+            }
 
-            if !is_valid_cube {
-                break;
+            if is_valid_cube {
+                is_valid_cube = cube.is_valid();
             }
         }
 
         if is_valid_cube {
-            println!("{}", game_id);
-            sum += game_id;
+            sum1 += game_id;
         }
+
+        sum2 += min_red * min_green * min_blue;
     }
 
-    println!("{}", sum);
+    println!("1: {}", sum1);
+    println!("2: {}", sum2);
 }
 
 
@@ -73,9 +85,11 @@ pub trait IsValidCube {
 
 impl IsValidCube for Cube {
     fn is_valid(&self) -> bool {
-        return self.color == CubeColor::Red && self.count <= 12 ||
-                self.color == CubeColor::Green && self.count <= 13 ||
-                self.color == CubeColor::Blue && self.count <= 14;
+        return match self {
+            Cube { color: CubeColor::Red, count } => count <= &12,
+            Cube { color: CubeColor::Green, count } => count <= &13,
+            Cube { color: CubeColor::Blue, count } => count <= &14,
+        };
     }
 }
 
