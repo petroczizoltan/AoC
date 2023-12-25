@@ -64,17 +64,28 @@ fn main() {
     let lines = read_file.lines().collect::<Vec<&str>>();
 
     let mut sum1: i64 = 2 << 60;
-    let mut sum2: i32 = 0;
+    let mut sum2: i64 = 2 << 60;
 
     let mut empty_line_idx = 2 << 32;
 
     let mut current_map_type: Option<MapType> = None;
 
-    let mut previous_values: Vec<i64> = Vec::new();
-    let mut current_values: Vec<i64> = Vec::new();
+    let mut previous_values_1: Vec<i64> = Vec::new();
+    let mut previous_values_2: Vec<i64> = Vec::new();
+    let mut current_values_1: Vec<i64> = Vec::new();
+    let mut current_values_2: Vec<i64> = Vec::new();
 
-    for seed_str in lines.first().unwrap().split(' ').skip(1) {
-        previous_values.push(seed_str.parse::<i64>().unwrap());
+    let seed_line: Vec<&str> = lines.first().unwrap().split(' ').skip(1).collect();
+    for seed_str in seed_line.clone() {
+        previous_values_1.push(seed_str.parse::<i64>().unwrap());
+    }
+    for (idx, _) in seed_line.clone().iter().enumerate().step_by(2) {
+        let range_start = seed_line.get(idx).unwrap().parse::<i64>().unwrap();
+        let range_count = seed_line.get(idx + 1).unwrap().parse::<i64>().unwrap();
+
+        for seed_number in range_start..(range_start + range_count) {
+            previous_values_2.push(seed_number);
+        }
     }
 
     let mut map_list: Vec<SrcToDstMap> = Vec::new();
@@ -84,25 +95,44 @@ fn main() {
             empty_line_idx = index;
 
             if current_map_type.is_some() {
-                current_values.clear();
-                for value in previous_values {
+                current_values_1.clear();
+                current_values_2.clear();
+                for value in previous_values_1 {
                     let mut found_value = false;
                     for map in &map_list {
                         let dst = map.find_dst(value);
                         match dst {
                             Some(new_value) => {
                                 found_value = true;
-                                current_values.push(new_value);
+                                current_values_1.push(new_value);
                                 break;
                             }
                             _ => {},
                         }
                     }
                     if !found_value {
-                        current_values.push(value);
+                        current_values_1.push(value);
                     }
                 }
-                previous_values = current_values.clone();
+                for value in previous_values_2 {
+                    let mut found_value = false;
+                    for map in &map_list {
+                        let dst = map.find_dst(value);
+                        match dst {
+                            Some(new_value) => {
+                                found_value = true;
+                                current_values_2.push(new_value);
+                                break;
+                            }
+                            _ => {},
+                        }
+                    }
+                    if !found_value {
+                        current_values_2.push(value);
+                    }
+                }
+                previous_values_1 = current_values_1.clone();
+                previous_values_2 = current_values_2.clone();
                 map_list.clear();
             }
             continue;
@@ -120,9 +150,14 @@ fn main() {
         map_list.push(SrcToDstMap::from_line(line));
     }
 
-    for val in current_values {
+    for val in current_values_1 {
         if val < sum1 {
             sum1 = val;
+        }
+    }
+    for val in current_values_2 {
+        if val < sum2 {
+            sum2 = val;
         }
     }
 
