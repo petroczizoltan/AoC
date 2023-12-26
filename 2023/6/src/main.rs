@@ -11,12 +11,13 @@ fn main() {
     let read_file = read_to_string(file_path).unwrap();
     let lines = read_file.lines().collect::<Vec<&str>>();
 
-    let times: Vec<i64> = lines.first().unwrap().split(' ').filter(|s| !s.is_empty()).skip(1).map(|s| s.parse::<i64>().unwrap()).collect();
-    let distances: Vec<i64> = lines.last().unwrap().split(' ').filter(|s| !s.is_empty()).skip(1).map(|s| s.parse::<i64>().unwrap()).collect();
+    let times1: Vec<i64> = lines.first().unwrap().split(' ').filter(|s| !s.is_empty()).skip(1).map(|s| s.parse::<i64>().unwrap()).collect();
+    let distances1: Vec<i64> = lines.last().unwrap().split(' ').filter(|s| !s.is_empty()).skip(1).map(|s| s.parse::<i64>().unwrap()).collect();
 
-    let mut sum2: i64 = 0;
+    let time2 = lines.first().unwrap().split(' ').filter(|s| !s.is_empty()).skip(1).collect::<Vec<&str>>().join("").parse::<i64>().unwrap();
+    let distance2 = lines.last().unwrap().split(' ').filter(|s| !s.is_empty()).skip(1).collect::<Vec<&str>>().join("").parse::<i64>().unwrap();
 
-    let sum1 = times.iter().zip(distances.iter())
+    let sum1 = times1.iter().zip(distances1.iter())
         .map(|(&time, &distance)| {
             let mut loading_time: i64 = 0;
 
@@ -30,6 +31,14 @@ fn main() {
             return time - loading_time * 2 + 1;
         })
         .reduce(|acc, e| acc * e).unwrap();
+
+    let range_vec = (1..time2).collect::<Vec<i64>>();
+    let load_time2 = range_vec.iter()
+        .skip_while(|&&load_time| {
+            return (time2 - load_time) * load_time <= distance2;
+        })
+        .next().unwrap();
+    let sum2 = time2 - load_time2 * 2 + 1;
 
     println!("1: {}", sum1);
     println!("2: {}", sum2);
