@@ -1,0 +1,35 @@
+name: aoc_2024
+
+environment:
+  sdk: ^3.6.0
+
+workspace:
+  - packages/shared
+  - packages/01
+  # - packages/02
+  # - packages/03
+  # - packages/04
+  # - packages/05
+  # - packages/06
+  # - packages/07
+  # - packages/08
+  # - packages/09
+  # - packages/10
+  # - packages/11
+  # - packages/12
+  # - packages/13
+  # - packages/14
+  # - packages/15
+  # - packages/16
+  # - packages/17
+  # - packages/18
+  # - packages/19
+  # - packages/20
+  # - packages/21
+  # - packages/22
+  # - packages/23
+  # - packages/24
+  # - packages/25
+
+dev_dependencies:
+  dswitch: ^7.0.0

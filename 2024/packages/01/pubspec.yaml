@@ -1,0 +1,7 @@
+name: day_01
+
+environment:
+  sdk: ^3.6.0
+resolution: workspace
+dependencies:
+  shared: ^0.0.0
